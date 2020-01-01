@@ -1,7 +1,8 @@
 # JebelMarraViz
-Uniy project visualizing topography and rainfall in Jebel (mountain) Marra, Sudan
+Unity project visualizing topography and rainfall in Jebel (mountain) Marra, Sudan
 
-This project was done "hackathon-style" in < 2 days for a workshop I attended. The project targeted Jebel Marra region, but -in theory- could be extended to any other region given its data.
+This project was done "hackathon-style" in < 2 days for a workshop I attended. The project targeted Jebel Marra region, but -in theory- could be used with any other regions data.
+
 Datasets used:
 - JAXA ALOS World3D, 30m DSM (in geoTIFF format), via OpenTopography.org.
 - NASA/JAXA TRMM rainfall data (average monthely rainfall, in geoTIFF format), via 
@@ -13,13 +14,13 @@ Raster preperation was carried out with QGIS. Major preperations steps were:
 
 
 Controls:
-W, A, S, and D: standard 3D movement relative to camera orientation (forward, backwards, strafe left, strafe right)
-Q and E: rotate camera left or right.
-Space: Fly upwards.
-C: Drop downwards.
-Brackets [ and ]: Move time forwards or backwards (changes season/rainfall)
-Greater and Less < and >: Increase or decrease ground mesh resolution (does not append automatically, needs manually appending)
-O: Append ground mesh resolution (NOTE: when application starts, it does not 3D-fy the ground automatically, O must be pressed to do so).
-P (useless in current implementation): Append precipitation data (done automatically when changing time, so no use for it).
-1 (Alpha 1, not Numpad 1): Lock/Unlock camera rotation and movement.
+- W, A, S, and D: standard 3D movement relative to camera orientation (forward, backwards, strafe left, strafe right)
+- Q and E: rotate camera left or right.
+- Space: Fly upwards.
+- C: Drop downwards.
+- Brackets [ and ]: Move time forwards or backwards (changes season/rainfall)
+- Greater and Less < and >: Increase or decrease ground mesh resolution (does not append automatically, needs manually appending)
+- O: Append ground mesh resolution (NOTE: when application starts, it does not 3D-fy the ground automatically, O must be pressed to do so).
+- P (useless in current implementation): Append precipitation data (done automatically when changing time, so no use for it).
+- 1 (Alpha 1, not Numpad 1): Lock/Unlock camera rotation and movement.
 
