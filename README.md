@@ -4,8 +4,8 @@ Unity project visualizing topography and rainfall in Jebel (mountain) Marra, Sud
 This project was done "hackathon-style" in < 2 days for a workshop I attended. The project targeted Jebel Marra region, but -in theory- could be used with any other regions data.
 
 Datasets used:
-- JAXA ALOS World3D, 30m DSM (in geoTIFF format), via OpenTopography.org.
-- NASA/JAXA TRMM rainfall data (average monthely rainfall, in geoTIFF format), via 
+- JAXA ALOS World3D, 30m DSM (in geoTIFF format), via https://opentopography.org/.
+- NASA/JAXA TRMM rainfall data (average monthely rainfall, in geoTIFF format), via http://www.geog.ucsb.edu/~bodo/TRMM/
 
 
 Raster preperation was carried out with QGIS. Major preperations steps were:
