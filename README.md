@@ -6,6 +6,9 @@ This project was done "hackathon-style" in < 2 days for a workshop I attended. T
 Datasets used:
 - JAXA ALOS World3D, 30m DSM (in geoTIFF format), via https://opentopography.org/.
 - NASA/JAXA TRMM rainfall data (average monthely rainfall, in geoTIFF format), via http://www.geog.ucsb.edu/~bodo/TRMM/
+- Wherever Google got its natural colour, satellite imagery from (Tried using USGS' earthexplorer portal, but it wasn't slow-internet friendly, so I clipped that data from a base map provided through a QGIS plugin called QMS and used an source labelled "Google.cn satellite")
+
+NOTE: This repo DOES NOT contain the natural colour textures. The one I used was > 100MB in size (it was covering a > 7000 km^2 region, after all), uploading would've been a pain.
 
 
 Raster preperation was carried out with QGIS. Major preperations steps were:
