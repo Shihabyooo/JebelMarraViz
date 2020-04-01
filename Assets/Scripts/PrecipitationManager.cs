@@ -6,13 +6,10 @@ public class PrecipitationManager : MonoBehaviour
 {
     public RasterManager precRaster;
     public float rainfallModifier = 10.0f;
-
     public static PrecipitationManager precMan;
     public Texture2D[] monthelyRainfallRaster = new Texture2D[12];
     public int currentMonth; //1 to 12
-
     public UnityEngine.UI.Slider slider;
-
 
     void Start()
     {
@@ -25,37 +22,15 @@ public class PrecipitationManager : MonoBehaviour
             Destroy(this.gameObject);
     }
 
-
-    void Update()
-    {
-
-
-
-
-    }
-
-
     public void UpdateVisualization()
     {
         foreach (Transform node in this.transform)
-        {
-            //node.gameObject.GetComponent<ParticleSystem>().emission.rateOverTime = GetPrecipitationRate(node.position);
             node.gameObject.GetComponent<RainParticleNode>().UpdateRate(GetPrecipitationRate(node.position) * rainfallModifier);
-        }
-
     }
-
 
     float GetPrecipitationRate(Vector3 position)
     {
         float rate = 0.0f;
-
-        //Vector4 rasterVal = precRaster.SampleRaster(this.transform.position);
-        //if (rasterVal.w <= 0.01f) //SampleRaster returns Vector4 with 0 alpha value when sample is out of scope
-        //{
-        //    return -999.9f;
-        //}
-
         rate = precRaster.SampleRasterForRegion(position, 1.0f); //TODO modify radius to be calculated form rainfall cells size
         return rate;
     }
@@ -65,6 +40,7 @@ public class PrecipitationManager : MonoBehaviour
         month -= 1;
         month = Mathf.Clamp(month, 0, 11);
         currentMonth = month + 1;
+
         if (monthelyRainfallRaster[month] != null)
         {
             precRaster.raster = monthelyRainfallRaster[month];
@@ -75,6 +51,7 @@ public class PrecipitationManager : MonoBehaviour
         {
             print("ERROR: not rainfall raster is set for month: " + month + 1);
         }
+
         precRaster.UpdateRasterHolder();
         UIManager.uiMan.UpdateMonthTextFromSlider();
         UIManager.uiMan.UpdateMapStatistics();
@@ -87,7 +64,6 @@ public class PrecipitationManager : MonoBehaviour
 
     public void UpdateMonthFromUI()
     {
-        //print(slider.value);
         SwitchMonth((int)slider.value);
     }
 

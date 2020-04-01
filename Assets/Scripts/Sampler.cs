@@ -4,24 +4,7 @@ using UnityEngine;
 
 public class Sampler : MonoBehaviour
 {
-
     public RasterManager[] dataSetList;
-
-    // Start is called before the first frame update
-    public virtual void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    public virtual void Update()
-    {
-        //if (Input.GetKeyDown(KeyCode.Space))
-        //{
-        //    GetSample();
-        //}
-    }
-
 
     public virtual void GetSample()
     {

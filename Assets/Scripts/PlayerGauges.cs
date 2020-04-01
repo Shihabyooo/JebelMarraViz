@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class PlayerGauges : MonoBehaviour
 {
-
     public RasterManager precipitationLayer;
     public RasterManager topographyLayer;
-
 
     [System.Serializable]
     public struct WeatherParameters
@@ -21,13 +19,11 @@ public class PlayerGauges : MonoBehaviour
     [SerializeField]
     WeatherParameters weatherParam = new WeatherParameters();
 
-    // Start is called before the first frame update
     void Start()
     {
         UpdateWeatherParametersAtPlayer();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         UpdateWeatherParametersAtPlayer();
@@ -49,8 +45,5 @@ public class PlayerGauges : MonoBehaviour
             UIManager.uiMan.UpdateRainfall(weatherParam.rainfall);
         }
     }
-
-
-
 
 }

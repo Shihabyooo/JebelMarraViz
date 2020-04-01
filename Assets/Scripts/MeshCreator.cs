@@ -19,23 +19,20 @@ public class MeshCreator : MonoBehaviour
     int counter = 0;
     public int maxTilesPerMesh = 30000;
     
-    public void UpdateGrid(Vector2 gridIndex, Vector2 tileIndex, float tileSize, int gridWidth)
-    {
-        var mesh = GetComponent<MeshFilter>().mesh;
-        var uvs = mesh.uv;
+    // public void UpdateGrid(Vector2 gridIndex, Vector2 tileIndex, float tileSize, int gridWidth)
+    // {
+    //     Mesh mesh = this.gameObject.GetComponent<MeshFilter>().mesh;
+    //     Vector2[] uvs = mesh.uv;
 
-        //var tileSizeX = 1.0f / numTilesX;
-        //var tileSizeY = 1.0f / numTilesY;
+    //     mesh.uv = uvs;
 
-        mesh.uv = uvs;
+    //     uvs[(int)(gridWidth * gridIndex.x + gridIndex.y) * 4 + 0] = new Vector2(tileIndex.x * tileSize, tileIndex.y * tileSize);
+    //     uvs[(int)(gridWidth * gridIndex.x + gridIndex.y) * 4 + 1] = new Vector2((tileIndex.x + 1) * tileSize, tileIndex.y * tileSize);
+    //     uvs[(int)(gridWidth * gridIndex.x + gridIndex.y) * 4 + 2] = new Vector2((tileIndex.x + 1) * tileSize, (tileIndex.y + 1) * tileSize);
+    //     uvs[(int)(gridWidth * gridIndex.x + gridIndex.y) * 4 + 3] = new Vector2(tileIndex.x * tileSize, (tileIndex.y + 1) * tileSize);
 
-        uvs[(int)(gridWidth * gridIndex.x + gridIndex.y) * 4 + 0] = new Vector2(tileIndex.x * tileSize, tileIndex.y * tileSize);
-        uvs[(int)(gridWidth * gridIndex.x + gridIndex.y) * 4 + 1] = new Vector2((tileIndex.x + 1) * tileSize, tileIndex.y * tileSize);
-        uvs[(int)(gridWidth * gridIndex.x + gridIndex.y) * 4 + 2] = new Vector2((tileIndex.x + 1) * tileSize, (tileIndex.y + 1) * tileSize);
-        uvs[(int)(gridWidth * gridIndex.x + gridIndex.y) * 4 + 3] = new Vector2(tileIndex.x * tileSize, (tileIndex.y + 1) * tileSize);
-
-        mesh.uv = uvs;
-    }
+    //     mesh.uv = uvs;
+    // }
     
     public void CreatePlane(Vector3 swCorner, float tileSize, float xWidth, float yHeight)
     {
@@ -49,29 +46,19 @@ public class MeshCreator : MonoBehaviour
         }
 
         CreatePlane(swCorner, tileSize, xWidth, yHeight, ref zeroGrid);
-
     }
 
-
-
-    //void CreatePlane(int tileHeight, int tileWidth, int gridHeight, int gridWidth)
     public void CreatePlane(Vector3 swCorner, float tileSize, float xWidth, float yHeight, ref float[][] elevationsGrid)
     {
-        #region prep work
-        //var mesh = new Mesh();
-        //var mf = GetComponent<MeshFilter>();
-        //mf.GetComponent<Renderer>().material.SetTexture("_MainTex", Texture);
-        //mf.mesh = mesh;
+#region prep work
         counter = 0;
         Mesh[] meshList = new Mesh[meshSubsections];
         MeshFilter[] mfList = new MeshFilter[meshSubsections];
 
         if (meshHolders != null)
             foreach (GameObject obj in meshHolders)
-            {
-                //print("destroying");
                 Destroy(obj);
-            }
+
         //print("First two elevations: " + elevationsGrid[0][0] + ", " + elevationsGrid[0][1]);
         meshHolders = new GameObject[meshSubsections];
 
@@ -98,11 +85,8 @@ public class MeshCreator : MonoBehaviour
             trianglesList[i] = new List<int>();
             normalsList[i] = new List<Vector3>();
             uvsList[i] = new List<Vector2>();
-        }
-        
-        #endregion
-
-        //print("Recieved width and height: " + xWidth + " x " + yHeight + ", tileSize: " + tileSize);
+        } 
+#endregion
 
         int totalHorizontalTiles = Mathf.RoundToInt(xWidth / tileSize);
         int totalVerticalTiles = Mathf.RoundToInt(yHeight / tileSize);
@@ -110,7 +94,6 @@ public class MeshCreator : MonoBehaviour
         //for now, let's just fit input into a squared grid, will cause part of the grids to be flat (depending on how rectangular original dem is)
         int targetTilesNo = Mathf.Max(totalHorizontalTiles, totalVerticalTiles);
         int noOfTilesPerAxisPerSubsection = Mathf.FloorToInt(Mathf.Sqrt(maxTilesPerMesh)); //assumes squared subsections
-        //int noOfSubsectionsInOneAxis = Mathf.Clamp(Mathf.RoundToInt( (float)targetTilesNo / (float)noOfTilesPerAxisPerSubsection), 1, Mathf.FloorToInt(Mathf.Sqrt(meshSubsections)));
         int noOfSubsectionsInOneAxis = Mathf.Clamp(Mathf.RoundToInt(targetTilesNo / noOfTilesPerAxisPerSubsection), 1, int.MaxValue);
         //print("targetTilesNo: " + targetTilesNo);
         //print("noOfTilesPerAxisPerSubsection: " + noOfTilesPerAxisPerSubsection);
@@ -119,9 +102,7 @@ public class MeshCreator : MonoBehaviour
         #region meshing loop
         for (int k = 0; k < meshSubsections; k++) //coule've used counter...
         {
-
             float xLocalWidth = xWidth / (float) noOfSubsectionsInOneAxis;
-            //float yLocalHeight = yHeight / (float)noOfSubsectionsInOneAxis;
             float yLocalHeight = xLocalWidth; //the above line causes issues with tiling, big seams between rows.
 
             int tileGridWidth = Mathf.RoundToInt(xLocalWidth / tileSize);
@@ -161,7 +142,6 @@ public class MeshCreator : MonoBehaviour
                     AddVertices(localSWCorner, tileSize, tileSize, y, x, verticesList[counter], heights);
                     index = AddTriangles(index, trianglesList[counter]);
                     AddNormals(normalsList[counter]);
-                    //AddUvs(defaultTileX, tileSize, tileSize, uvsList[counter], defaultTileY);
                     AddUvs(swCorner, localSWCorner, tileSize, x, y, xWidth, yHeight, uvsList[counter]);
                 }
             }
@@ -181,7 +161,6 @@ public class MeshCreator : MonoBehaviour
     
     float[] GetVertsHeightPerQuad(int pixelX, int pixelY, int maxX, int maxY, float[][] elevationGrid)
     {
-
         //Note: the order goes counter clockwise from SW corner.
         float[] heights = new float[4];
 
@@ -242,7 +221,6 @@ public class MeshCreator : MonoBehaviour
         return heights;
     }
 
-    //private static void AddVertices(Vector3 swCorner, float tileHeight, float tileWidth, int y, int x, ICollection<Vector3> vertices, float[] height)
     private void AddVertices(Vector3 swCorner, float tileHeight, float tileWidth, int y, int x, ICollection<Vector3> vertices, float[] height)
     {
         vertices.Add( this.transform.TransformPoint( swCorner + new Vector3(((float)x * tileWidth), height[0], ((float)y * tileHeight))));
@@ -284,11 +262,6 @@ public class MeshCreator : MonoBehaviour
     //private static void AddUvs(int tileRow, float tileSizeY, float tileSizeX, ICollection<Vector2> uvs, int tileColumn)
     private static void AddUvs(Vector3 swCorner, Vector3 localSWCorner, float tileSize, int x, int y, float totalWidth, float totalHeight, ICollection<Vector2> uvs)
     {
-        //uvs.Add(new Vector2(tileColumn * tileSizeX, tileRow * tileSizeY));
-        //uvs.Add(new Vector2((tileColumn + 1) * tileSizeX, tileRow * tileSizeY));
-        //uvs.Add(new Vector2((tileColumn + 1) * tileSizeX, (tileRow + 1) * tileSizeY));
-        //uvs.Add(new Vector2(tileColumn * tileSizeX, (tileRow + 1) * tileSizeY));
-
         Vector3[] tempPosList = new Vector3[4];
 
         tempPosList[0] = localSWCorner + new Vector3(((float)x * tileSize), 0.0f, ((float)y * tileSize)) - swCorner;

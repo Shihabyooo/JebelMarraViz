@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-
     public Slider monthSlider;
     public Text monthText;
     public Text rainfallText;
@@ -19,8 +18,7 @@ public class UIManager : MonoBehaviour
     public Slider resoSlider;
     public static UIManager uiMan;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (uiMan == null)
         {
@@ -30,13 +28,10 @@ public class UIManager : MonoBehaviour
             Destroy(this.gameObject);
     }
 
-  
     public void UpdateMonthTextFromSlider()
     {
         monthText.text = GetMonthName((int)monthSlider.value);
     }
-
-
 
     public void UpdateElevation(float elevation)
     {
@@ -97,18 +92,13 @@ public class UIManager : MonoBehaviour
         return name;
     }
     
-
     public void UpdateMapStatistics()
     {
-        //PrecipitationManager.precMan.precRaster.planeSpecs;
-        //GroundCreator.grCreator.groundPlane.planeSpecs;
-
         meanElevationText.text = Mathf.RoundToInt((GroundCreator.grCreator.groundPlane.planeSpecs.averageValue * 2004.0f)+1000.0f).ToString();
         stdElevationText.text = Mathf.RoundToInt((GroundCreator.grCreator.groundPlane.planeSpecs.valueStDev * 2004.0f) + 1000.0f).ToString();
 
         meanRainfallText.text = Mathf.RoundToInt(PrecipitationManager.precMan.precRaster.planeSpecs.averageValue * 1000.0f).ToString();
         stdRainfallText.text = Mathf.RoundToInt(PrecipitationManager.precMan.precRaster.planeSpecs.valueStDev * 1000.0f).ToString();
-
     }
 
 }

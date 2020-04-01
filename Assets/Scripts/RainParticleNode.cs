@@ -7,13 +7,12 @@ public class RainParticleNode : MonoBehaviour
     bool isActive = true;
     float ratePerSecond = 10.0f;
     ParticleSystem pSystem;
-    // Start is called before the first frame update
+
     void Start()
     {
         pSystem = this.gameObject.GetComponent<ParticleSystem>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!isActive)
@@ -30,7 +29,5 @@ public class RainParticleNode : MonoBehaviour
             isActive = true;
 
         ratePerSecond = newRate;
-
-        //print("Updating Node: " + this.gameObject.name + " with rate: " + newRate);
     }
 }

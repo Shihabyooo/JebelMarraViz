@@ -21,7 +21,7 @@ public class GroundCreator : MonoBehaviour
     public static GroundCreator grCreator;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (grCreator == null)
         {
@@ -31,16 +31,12 @@ public class GroundCreator : MonoBehaviour
             //meshCreator.CreatePlane(swCorner, groundPlane.planeSpecs.spacingBetweenPixels * 10.0f, groundPlane.planeSpecs.width * 10.0f, groundPlane.planeSpecs.height * 10.0f);
             meshCreator.CreatePlane(swCorner, resolution, groundPlane.planeSpecs.width * 10.0f, groundPlane.planeSpecs.height * 10.0f);
             resoSlider.value = (int)resolution;
+            UpdateTopography();
         }
         else
             Destroy(this.gameObject);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-            
-    }
 
     public void UpdateTopography()
     {

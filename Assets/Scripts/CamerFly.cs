@@ -15,15 +15,12 @@ public class CamerFly : MonoBehaviour
 
     bool flightMode = true;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         originalPos = this.transform.position;
         originalRot = this.transform.rotation;
     }
 
-
-    // Update is called once per frame
     void Update()
     {
         velocity = Vector3.zero;
@@ -42,7 +39,6 @@ public class CamerFly : MonoBehaviour
 
     void GetMovementInput()
     {
-
         if (Input.GetKey(KeyCode.W))
         {
             velocity.z += 1.0f;
@@ -67,7 +63,6 @@ public class CamerFly : MonoBehaviour
         {
             velocityWorld.y -= 1.0f;
         }
-
     }
 
     void GetLookInput()
@@ -88,7 +83,6 @@ public class CamerFly : MonoBehaviour
         {
             this.transform.Rotate(Vector3.forward, -1.0f * lookSpead * Time.deltaTime);
         }
-        //print("xRot: " + xRot);
     }
 
     void GetOtherInput()
@@ -116,7 +110,6 @@ public class CamerFly : MonoBehaviour
             GroundCreator.grCreator.SwitchResolutionOffset(-1);
         else if (Input.GetKeyDown(KeyCode.Period))
             GroundCreator.grCreator.SwitchResolutionOffset(1);
-
     }
 
     void Displace()

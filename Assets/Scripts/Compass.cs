@@ -4,16 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 public class Compass : MonoBehaviour
 {
-
     public static Compass compass;
 
-    //Transform camera;
-    // Start is called before the first frame update
-
     Quaternion originalRot;
-    void Start()
+    void Awake()
     {
-
         if (compass == null)
         {
             compass = this;
