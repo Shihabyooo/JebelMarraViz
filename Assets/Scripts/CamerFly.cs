@@ -36,7 +36,6 @@ public class CamerFly : MonoBehaviour
         Displace();
     }
 
-
     void GetMovementInput()
     {
         if (Input.GetKey(KeyCode.W))
