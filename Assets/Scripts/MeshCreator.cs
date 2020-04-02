@@ -1,7 +1,6 @@
 ﻿//A slightly modified version of:
 //http://wiki.unity3d.com/index.php/MeshCreationGrid
 
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -41,8 +40,8 @@ public class MeshCreator : MonoBehaviour
     public void CreateGroundMesh(Vector3 swCorner, float tileSize, float xWidth, float yHeight, ref float[][] elevationsGrid) //creates a ground with topography matching elevationsGrid
     {
         counter = 0;
-        //TODO estimate number of required mesh holder here, and modify InitializeMeshHolders to limit creating holders to that number.
-        InitializeMeshHolders();
+        
+        
 
         int totalHorizontalTiles = Mathf.CeilToInt(xWidth / tileSize);
         int totalVerticalTiles = Mathf.CeilToInt(yHeight / tileSize);
@@ -50,33 +49,44 @@ public class MeshCreator : MonoBehaviour
         //for now, let's just fit input into a squared grid, will cause part of the grids to be flat (depending on how rectangular the DEM/DTM is)
         int targetTilesNoPerAxis = Mathf.Max(totalHorizontalTiles, totalVerticalTiles);
         int noOfTilesPerAxisPerSubsection = Mathf.FloorToInt(Mathf.Sqrt(maxTilesPerMesh)); //assumes squared subsections. FloorToInt to maintain results within our maxTilesPerMesh limits
-        int noOfSubsectionsInOneAxis = Mathf.Clamp(Mathf.CeilToInt(targetTilesNoPerAxis / noOfTilesPerAxisPerSubsection), 1, int.MaxValue);
+        int noOfSubsectionsInOneAxis = Mathf.Clamp(Mathf.CeilToInt((float)targetTilesNoPerAxis / (float)noOfTilesPerAxisPerSubsection), 1, int.MaxValue);
+        int totalNoOfSubsections = noOfSubsectionsInOneAxis * noOfSubsectionsInOneAxis;
         
-        // print("xWidth: " + xWidth + ", yHeight: " + yHeight);
-        // print("targetTilesNoPerAxis: " + targetTilesNoPerAxis);
-        // print("noOfTilesPerAxisPerSubsection: " + noOfTilesPerAxisPerSubsection);
-        // print("noOfSubsectionsInOneAxis: " + noOfSubsectionsInOneAxis);
+        InitializeMeshHolders(totalNoOfSubsections);
+        
+        print("xWidth: " + xWidth + ", yHeight: " + yHeight);
+        print("targetTilesNoPerAxis: " + targetTilesNoPerAxis);
+        print("noOfTilesPerAxisPerSubsection: " + noOfTilesPerAxisPerSubsection);
+        print("noOfSubsectionsInOneAxis: " + noOfSubsectionsInOneAxis);
 
         #region meshing loop
-        for (int k = 0; k < meshSubsections; k++) //coule've used counter...
+        //for (int k = 0; k < meshSubsections; k++) //coule've used counter...
+        for (int k = 0; k < totalNoOfSubsections; k++) 
         {
+            print ("counter: " + counter);
             //float xLocalWidth = xWidth / (float) noOfSubsectionsInOneAxis;
             float xLocalWidth = noOfTilesPerAxisPerSubsection * tileSize;
             float yLocalHeight = xLocalWidth; 
-            
-            float[][] elevationsSubGrid = new float[noOfTilesPerAxisPerSubsection][];
 
-            int xCellsToLocalSWCorner = ((counter % noOfSubsectionsInOneAxis ) * noOfTilesPerAxisPerSubsection);
+            float[][] elevationsSubGrid = new float[noOfTilesPerAxisPerSubsection + 2][];
+
+            int xCellsToLocalSWCorner = (counter % noOfSubsectionsInOneAxis) * noOfTilesPerAxisPerSubsection;
             int yCellsToLocalSWCorner = (counter / noOfSubsectionsInOneAxis) * noOfTilesPerAxisPerSubsection;
 
-            for (int i = 0; i < noOfTilesPerAxisPerSubsection; i++)
+            //print ("xCellsToLocalSWCorner: " + xCellsToLocalSWCorner);
+            //print ("yCellsToLocalSWCorner: " + yCellsToLocalSWCorner);
+
+            for (int i = 0; i < noOfTilesPerAxisPerSubsection + 2; i++)
             {
-                elevationsSubGrid[i] = new float[noOfTilesPerAxisPerSubsection];
-                for (int j = 0; j < noOfTilesPerAxisPerSubsection; j++)
+                elevationsSubGrid[i] = new float[noOfTilesPerAxisPerSubsection + 2];
+                for (int j = 0; j < noOfTilesPerAxisPerSubsection + 2; j++)
                 {
-                    int _x = xCellsToLocalSWCorner + i;
-                    int _y = yCellsToLocalSWCorner + j;
+                    int _x = xCellsToLocalSWCorner + i - 1;
+                    int _y = yCellsToLocalSWCorner + j - 1;
+                    
                     if ( _x >= elevationsGrid.Length || _y >= elevationsGrid[0].Length)
+                        elevationsSubGrid[i][j] = 0.0f;
+                    else if (_x < 0 || _y < 0) //TODO merge this with above if clause
                         elevationsSubGrid[i][j] = 0.0f;
                     else
                         elevationsSubGrid[i][j] = elevationsGrid[_x][_y];
@@ -87,12 +97,12 @@ public class MeshCreator : MonoBehaviour
                                                             0.0f,
                                                             yCellsToLocalSWCorner * tileSize);
             
-            var index = 0;
-            for (var x = 0; x < noOfTilesPerAxisPerSubsection; x++)
+            int index = 0;
+            for (int x = 0; x < noOfTilesPerAxisPerSubsection; x++)
             {
-                for (var y = 0; y < noOfTilesPerAxisPerSubsection; y++)
+                for (int y = 0; y < noOfTilesPerAxisPerSubsection; y++)
                 {
-                    float[] heights = GetVertsHeightPerQuad(x, y, noOfTilesPerAxisPerSubsection - 1, noOfTilesPerAxisPerSubsection - 1, ref elevationsSubGrid);
+                    float[] heights = GetVertsHeightPerQuad(x + 1, y + 1, noOfTilesPerAxisPerSubsection - 1, noOfTilesPerAxisPerSubsection - 1, ref elevationsSubGrid);
                     
                     AddVertices(localSWCorner, tileSize, tileSize, y, x, verticesList[counter], heights);
                     index = AddTriangles(index, trianglesList[counter]);
@@ -107,30 +117,31 @@ public class MeshCreator : MonoBehaviour
             meshList[counter].uv = uvsList[counter].ToArray();
             meshList[counter].RecalculateNormals();
 
-            counter++;
-            if (counter > Mathf.Pow(noOfSubsectionsInOneAxis, 2.0f))
-                break;
+            counter++;            
+            // if (counter > Mathf.Pow(noOfSubsectionsInOneAxis, 2.0f))
+            //     break;
         }
         #endregion
     }
     
-    void InitializeMeshHolders()
+    void InitializeMeshHolders(int noOfHolders)
     {
-        meshList = new Mesh[meshSubsections];
-        MeshFilter[] meshFilterList = new MeshFilter[meshSubsections];
+
+        meshList = new Mesh[noOfHolders];
+        MeshFilter[] meshFilterList = new MeshFilter[noOfHolders];
 
         if (meshHolders != null)
             foreach (GameObject obj in meshHolders)
                 Destroy(obj);
 
-        meshHolders = new GameObject[meshSubsections];
+        meshHolders = new GameObject[noOfHolders];
 
-        verticesList = new List<Vector3>[meshSubsections];
-        trianglesList = new List<int>[meshSubsections];
-        normalsList = new List<Vector3>[meshSubsections];
-        uvsList = new List<Vector2>[meshSubsections];
+        verticesList = new List<Vector3>[noOfHolders];
+        trianglesList = new List<int>[noOfHolders];
+        normalsList = new List<Vector3>[noOfHolders];
+        uvsList = new List<Vector2>[noOfHolders];
         
-        for (int i = 0; i < meshSubsections; i++)
+        for (int i = 0; i < noOfHolders; i++)
         {
             meshHolders[i] = new GameObject("MeshHolder" + i.ToString());
             meshHolders[i].transform.position = Vector3.zero;
@@ -155,58 +166,11 @@ public class MeshCreator : MonoBehaviour
         //Note: the order goes counter clockwise from SW corner.
         float[] heights = new float[4];
 
-        if (pixelX < 1) //left edge
-        {
-            if (pixelY < 1) //sw corner
-                heights[0] = elevationGrid[pixelX][pixelY];
-            else
-                heights[0] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX][pixelY - 1]) / 2.0f;
+        heights[0] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX - 1][pixelY - 1] + elevationGrid[pixelX][pixelY - 1] + elevationGrid[pixelX - 1][pixelY]) / 4.0f;
+        heights[1] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX + 1][pixelY - 1] + elevationGrid[pixelX][pixelY - 1] + elevationGrid[pixelX + 1][pixelY]) / 4.0f;
+        heights[2] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX + 1][pixelY + 1] + elevationGrid[pixelX][pixelY + 1] + elevationGrid[pixelX + 1][pixelY]) / 4.0f;
+        heights[3] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX - 1][pixelY + 1] + elevationGrid[pixelX][pixelY + 1] + elevationGrid[pixelX - 1][pixelY]) / 4.0f;
 
-            if (pixelY >= maxY) //nw corner
-                heights[3] = elevationGrid[pixelX][pixelY];
-            else
-                heights[3] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX][pixelY + 1]) / 2.0f;
-        }
-        else
-        {
-            if (pixelY < 1) //bottom edge, no corners
-                heights[0] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX - 1][pixelY]) / 2.0f;
-            else //centre, should be most used.
-                heights[0] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX-1][pixelY] + elevationGrid[pixelX][pixelY-1] + elevationGrid[pixelX-1][pixelY-1]) / 4.0f;
-
-            if (pixelY >= maxY) //top edge, no corners
-                heights[3] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX][pixelY - 1]) / 2.0f;
-            else //centre, should be most used.
-                heights[3] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX - 1][pixelY] + elevationGrid[pixelX ][pixelY+1] + elevationGrid[pixelX-1][pixelY+1]) / 4.0f;
-        }
-
-
-        if (pixelX >= maxX) //right edge
-        {
-            if (pixelY < 1) //se corner
-                heights[1] = elevationGrid[pixelX][pixelY];
-            else
-                heights[1] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX][pixelY - 1]) / 2.0f;
-
-            if (pixelY >= maxY) //ne corner
-                heights[2] = elevationGrid[pixelX][pixelY];
-            else
-                heights[2] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX][pixelY +1]) / 2.0f;
-        }
-        else
-        {
-            if (pixelY < 1) //bottom edge, no corners
-                heights[1] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX + 1][pixelY]) / 2.0f ;
-            else //centre, should be most used.
-                heights[1] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX + 1][pixelY] + elevationGrid[pixelX][pixelY - 1] + elevationGrid[pixelX + 1][pixelY - 1]) / 4.0f;
-
-            if (pixelY >= maxY) //top edge, no corners
-                heights[2] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX + 1][pixelY]) / 2.0f;
-            else //centre, should be most used.
-                heights[2] = (elevationGrid[pixelX][pixelY] + elevationGrid[pixelX + 1][pixelY] + elevationGrid[pixelX][pixelY + 1] + elevationGrid[pixelX + 1][pixelY + 1]) / 4.0f;
-        }
-
-        
         return heights;
     }
 
