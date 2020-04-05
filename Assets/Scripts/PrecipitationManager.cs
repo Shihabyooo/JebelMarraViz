@@ -5,27 +5,52 @@ using UnityEngine;
 public class PrecipitationManager : MonoBehaviour
 {
     public RasterManager precRaster;
-    public float rainfallModifier = 10.0f;
+    public float precipitationModifier = 200.0f; //TODO recheck the max values of all the rainfall rasters (the mm rainfall value corrosponding to fully-white pixels) and set
+                                                //its value here. No need for anything else, since total black corrosponds to 0mm precipitation in rasters.
     public static PrecipitationManager precMan;
     public Texture2D[] monthelyRainfallRaster = new Texture2D[12];
     public int currentMonth; //1 to 12
     public UnityEngine.UI.Slider slider;
+    RainParticleNode[] rainNodes;
+    CloudParticleNode[] cloudNodes;
 
-    void Start()
+    void Awake()
     {
         if (precMan == null)
-        {
             precMan = this;
-            SwitchMonth(1);
-        }
         else
             Destroy(this.gameObject);
+
+        PopulateNodesHolders();
+        SwitchMonth(1);
+    }
+
+    void PopulateNodesHolders()
+    {
+        Transform rainArray = this.transform.Find("RainArray");
+        Transform cloudArray = this.transform.Find("CloudArray");
+
+        //Assuming that different resultion is used for rain arrays and cloud arrays
+        rainNodes = new RainParticleNode[rainArray.childCount];
+        cloudNodes = new CloudParticleNode[cloudArray.childCount];
+
+        for (int i = 0; i < rainNodes.Length; i++)
+            rainNodes[i] = rainArray.GetChild(i).gameObject.GetComponent<RainParticleNode>();
+
+        for (int i = 0; i < cloudNodes.Length; i++)
+            cloudNodes[i] = cloudArray.GetChild(i).gameObject.GetComponent<CloudParticleNode>();
     }
 
     public void UpdateVisualization()
     {
-        foreach (Transform node in this.transform)
-            node.gameObject.GetComponent<RainParticleNode>().UpdateRate(GetPrecipitationRate(node.position) * rainfallModifier);
+        // foreach (Transform node in this.transform)
+        //     node.gameObject.GetComponent<RainParticleNode>().UpdateRate(GetPrecipitationRate(node.position) * rainfallModifier);
+
+        foreach (RainParticleNode node in rainNodes)
+            node.UpdateRate(GetPrecipitationRate(node.transform.position) * precipitationModifier);
+
+        foreach (CloudParticleNode node in cloudNodes)
+            node.UpdateRate(GetPrecipitationRate(node.transform.position) * precipitationModifier);
     }
 
     float GetPrecipitationRate(Vector3 position)
