@@ -11,6 +11,11 @@ public class PrecipitationManager : MonoBehaviour
     public Texture2D[] monthelyRainfallRaster = new Texture2D[12];
     public int currentMonth; //1 to 12
     public UnityEngine.UI.Slider slider;
+    
+    Transform rainArray;
+    Transform cloudArray;
+    [SerializeField] GameObject rainParticleSystemPrefab;
+    [SerializeField] GameObject cloudParticleSystemPrefab;
     RainParticleNode[] rainNodes;
     CloudParticleNode[] cloudNodes;
 
@@ -21,15 +26,69 @@ public class PrecipitationManager : MonoBehaviour
         else
             Destroy(this.gameObject);
 
+        rainArray = this.transform.Find("RainArray");
+        cloudArray = this.transform.Find("CloudArray");
+
+        GenerateEffectGrids();
+
         PopulateNodesHolders();
         SwitchMonth(1);
     }
 
+    void GenerateEffectGrids()
+    {
+        //Assuming that: A- Rain nodes and Cloud nodes aren't of similar size, and B- both nodes aren't necessarily squared.
+        float rainNodeWidth = rainParticleSystemPrefab.GetComponent<ParticleSystem>().shape.scale.x;
+        float rainNodeHeight = rainParticleSystemPrefab.GetComponent<ParticleSystem>().shape.scale.z;
+        float cloudNodeWidth = cloudParticleSystemPrefab.GetComponent<ParticleSystem>().shape.scale.x;
+        float cloudNodeHeight = cloudParticleSystemPrefab.GetComponent<ParticleSystem>().shape.scale.z;
+
+        //TODO figure out where this 10.0f multiplier you're using all over this project came from! :|
+        float totalWidth = precRaster.planeSpecs.width * 10.0f;
+        float totalHeight = precRaster.planeSpecs.height * 10.0f;
+
+        Vector3 swCorner = precRaster.transform.position - new Vector3(totalWidth/2.0f, 0.0f, totalHeight/2.0f);
+
+        int requiredRainNodesHorizontally = Mathf.CeilToInt(totalWidth / rainNodeWidth);
+        int requiredRainNodesvertically = Mathf.CeilToInt(totalHeight / rainNodeHeight);
+        int requiredCloudNodesHorizontally = Mathf.CeilToInt(totalWidth / cloudNodeWidth);
+        int requiredCloudNodesvertically = Mathf.CeilToInt(totalHeight / cloudNodeHeight);
+
+        // print ("rainNode: " + rainNodeWidth + " x " + rainNodeHeight);
+        // print ("cloudNode: " + cloudNodeWidth + " x " + cloudNodeHeight);
+        // print ("Total: " + totalWidth + " x " + totalHeight);
+        // print ("required rain: " + requiredRainNodesHorizontally + " x " + requiredRainNodesvertically);
+        // print ("required cloud: " + requiredCloudNodesHorizontally + " x " + requiredCloudNodesvertically);
+
+        swCorner.y = this.transform.position.y; //The rain node's elevation is the same as the PrecipitationEffect's
+        for (int i = 0; i < requiredRainNodesHorizontally; i ++)
+        {
+            for (int j = 0; j < requiredRainNodesvertically; j++)
+            {
+                Vector3 nodeLocation = swCorner + new Vector3(i * rainNodeWidth, 0.0f, j * rainNodeHeight) + new Vector3 (rainNodeWidth / 2.0f, 0.0f, rainNodeHeight/2.0f);
+                //The second newVector is to make the corner of the first node match the corner of the plane. Else the first node would be spawned with its centre at the plane's corner.
+                
+                GameObject instance = GameObject.Instantiate(rainParticleSystemPrefab, nodeLocation, this.transform.rotation);
+                instance.name = "RainNode" + i.ToString() + j.ToString();
+                instance.transform.SetParent (rainArray);
+            }
+        }
+
+        swCorner.y = this.transform.position.y + rainNodeHeight / 2.0f; //Clouds need to be slightly higher than the rain nodes (so rain appears to be falling from within clouds)
+        for (int i = 0; i < requiredCloudNodesHorizontally; i ++)
+        {
+            for (int j = 0; j < requiredCloudNodesvertically; j++)
+            {
+                Vector3 nodeLocation = swCorner + new Vector3(i * cloudNodeWidth, 0.0f, j * cloudNodeHeight) + new Vector3 (cloudNodeWidth / 2.0f, 0.0f, cloudNodeHeight/2.0f);
+                GameObject instance = GameObject.Instantiate(cloudParticleSystemPrefab, nodeLocation, this.transform.rotation);
+                instance.name = "CloudNode" + i.ToString() + j.ToString();
+                instance.transform.SetParent (cloudArray);
+            }
+        }
+    }
+
     void PopulateNodesHolders()
     {
-        Transform rainArray = this.transform.Find("RainArray");
-        Transform cloudArray = this.transform.Find("CloudArray");
-
         //Assuming that different resultion is used for rain arrays and cloud arrays
         rainNodes = new RainParticleNode[rainArray.childCount];
         cloudNodes = new CloudParticleNode[cloudArray.childCount];
