@@ -41,8 +41,6 @@ public class MeshCreator : MonoBehaviour
     {
         counter = 0;
         
-        
-
         int totalHorizontalTiles = Mathf.CeilToInt(xWidth / tileSize);
         int totalVerticalTiles = Mathf.CeilToInt(yHeight / tileSize);
 
@@ -54,16 +52,16 @@ public class MeshCreator : MonoBehaviour
         
         InitializeMeshHolders(totalNoOfSubsections);
         
-        print("xWidth: " + xWidth + ", yHeight: " + yHeight);
-        print("targetTilesNoPerAxis: " + targetTilesNoPerAxis);
-        print("noOfTilesPerAxisPerSubsection: " + noOfTilesPerAxisPerSubsection);
-        print("noOfSubsectionsInOneAxis: " + noOfSubsectionsInOneAxis);
+        // print("xWidth: " + xWidth + ", yHeight: " + yHeight);
+        // print("targetTilesNoPerAxis: " + targetTilesNoPerAxis);
+        // print("noOfTilesPerAxisPerSubsection: " + noOfTilesPerAxisPerSubsection);
+        // print("noOfSubsectionsInOneAxis: " + noOfSubsectionsInOneAxis);
 
         #region meshing loop
         //for (int k = 0; k < meshSubsections; k++) //coule've used counter...
         for (int k = 0; k < totalNoOfSubsections; k++) 
         {
-            print ("counter: " + counter);
+            //print ("counter: " + counter);
             //float xLocalWidth = xWidth / (float) noOfSubsectionsInOneAxis;
             float xLocalWidth = noOfTilesPerAxisPerSubsection * tileSize;
             float yLocalHeight = xLocalWidth; 
